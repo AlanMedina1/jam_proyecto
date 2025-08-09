@@ -3,6 +3,14 @@ bin-debug/
 bin-release/
 [Oo]bj/
 [Bb]in/
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
 
 # Other files and folders
 .settings/
