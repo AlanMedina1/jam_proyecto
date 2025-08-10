@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
         // Detectar si está en el suelo
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         // Mostrar mensaje de depuración
-        Debug.Log("Is Grounded: " + isGrounded);
+       // Debug.Log("Is Grounded: " + isGrounded);
         // Saltar con Space o W sólo si está en el suelo
         
         if (isGrounded && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)))

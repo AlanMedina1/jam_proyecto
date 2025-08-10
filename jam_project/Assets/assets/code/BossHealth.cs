@@ -15,7 +15,10 @@ public class BossHealth : MonoBehaviour
     public GameObject healthBarUI; // Objeto que contiene la barra de vida (puede ser un Canvas o Slider)
 
     private Slider healthBar;
-
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
     void Start()
     {
         currentHealth = maxHealth;
@@ -46,6 +49,9 @@ public class BossHealth : MonoBehaviour
     {
         currentHealth -= damage;
 
+        if(currentHealth < 0)
+            currentHealth = 0; // Asegura que la salud no sea negativa
+            
         if (healthBar != null)
             healthBar.value = currentHealth;
 
