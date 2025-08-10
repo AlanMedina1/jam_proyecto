@@ -8,6 +8,8 @@ public class PlayerHealth : MonoBehaviour
     public GameObject gameOverUI; // Esto es el canva, lo tengo que poner después en el editor. SAS
     public Slider healthBar; // Referencia a la barra de salud en la UI
     private bool isDead = false;
+
+    public BossAttack bossAttack; // Referencia al script de ataque del jefe
     void Start()
     {
         currentHealth = maxHealth;
@@ -27,8 +29,8 @@ public class PlayerHealth : MonoBehaviour
         {
             healthBar.value = currentHealth;
         }
-        Debug.Log($"Jugador recibió daño: {damage}");
-        Debug.Log($"Jugador recibe {damage} de daño. Vida actual: {currentHealth}");
+        //Debug.Log($"Jugador recibió daño: {damage}");
+        //Debug.Log($"Jugador recibe {damage} de daño. Vida actual: {currentHealth}");
 
         if (currentHealth <= 0)
         {
@@ -43,10 +45,11 @@ public class PlayerHealth : MonoBehaviour
 
         // Desactivar controles
         GetComponent<PlayerController>().enabled = false;
-        // Mostrar UI de Game Over
-        if (gameOverUI != null)
+
+        //esto debería hacer que el jefe deje de atacar.
+        if (bossAttack != null)
         {
-            gameOverUI.SetActive(true);
+            bossAttack.canAttack = false; // Desactiva los ataques del jefe
         }
         //Esto congela al Jugador para que no se mueva.
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
@@ -55,14 +58,19 @@ public class PlayerHealth : MonoBehaviour
             rb.linearVelocity = Vector2.zero; // Detiene el movimiento
             rb.constraints = RigidbodyConstraints2D.FreezeAll; // Desactiva la física
         }
-        Debug.Log("Jugador ha muerto.");
+
+         // Mostrar UI de Game Over
+        if (gameOverUI == null)
+        {
+        Debug.LogError("¡gameOverUI NO está asignado en PlayerHealth!");
+        }
+        else
+        {
+        gameOverUI.GetComponent<GameOverUIController>().ShowGameOver();
+        Debug.Log("Jugador murió, activando GameOverUI");
+        }
         //Acá va la diferente logica que después implemento :D 
         //muerte, animación, reinicio, etc.
-        // Desactivar controles
-        //GetComponent<PlayerMovement>().enabled = false; 
-
-        // Destruir al jugador o reiniciar nivel
-        // Destroy(gameObject);
     }
 
     public void Retry()

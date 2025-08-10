@@ -42,7 +42,7 @@ public class DeathProjectile : MonoBehaviour
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(damage);
-                Debug.Log($"Proyectil colisionó con: {collision.gameObject.name}");
+               // Debug.Log($"Proyectil colisionó con: {collision.gameObject.name}");
             }
 
             Destroy(gameObject);
