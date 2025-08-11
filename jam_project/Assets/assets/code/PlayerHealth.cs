@@ -7,6 +7,9 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
     public GameObject gameOverUI; // Esto es el canva, lo tengo que poner después en el editor. SAS
     public Slider healthBar; // Referencia a la barra de salud en la UI
+
+    PlayerController playerController;
+    PlayerAttack playerAttack;
     private bool isDead = false;
 
     public BossAttack bossAttack; // Referencia al script de ataque del jefe
@@ -18,6 +21,9 @@ public class PlayerHealth : MonoBehaviour
             healthBar.maxValue = maxHealth;
             healthBar.value = currentHealth;
         }
+
+        playerController = GetComponent<PlayerController>();
+        playerAttack = GetComponent<PlayerAttack>();
     }
 
     public void TakeDamage(int damage)
@@ -38,13 +44,18 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    private void Die()
+    public void Die()
     {
 
         isDead = true;
 
         // Desactivar controles
         GetComponent<PlayerController>().enabled = false;
+
+        playerController.isDead = true;
+        playerController.Die(); // para animaciones y físicas
+        playerAttack.isDead = true;
+        playerAttack.Die(); // para bloquear ataques y animaciones
 
         //esto debería hacer que el jefe deje de atacar.
         if (bossAttack != null)

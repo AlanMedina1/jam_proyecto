@@ -48,7 +48,7 @@ public class BossHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-
+        Debug.Log("Boss recibe daño. Vida restante: " + currentHealth);
         if(currentHealth < 0)
             currentHealth = 0; // Asegura que la salud no sea negativa
             
