@@ -9,7 +9,7 @@ public class PlayerAttack : MonoBehaviour
     public LayerMask enemyLayer; // Capa para detectar enemigos
 
     [Header("Control de Ataque")]
-    public float attackCooldown = 0.5f; // Tiempo entre ataques
+    public float attackCooldown = 0.3f; // Tiempo entre ataques
     private bool canAttack = true; // Controla si el jugador puede atacar
 
     [HideInInspector]

@@ -51,6 +51,7 @@
     <Compile Include="Assets\assets\code\GameOverUIController.cs" />
     <Compile Include="Assets\assets\code\PlayerAttack.cs" />
     <Compile Include="Assets\assets\code\BossTriggerZone.cs" />
+    <Compile Include="Assets\assets\code\BossMeleeHitbox.cs" />
     <Compile Include="Assets\assets\code\BossAttack.cs" />
     <Compile Include="Assets\assets\code\DeathProjectile.cs" />
     <Compile Include="Assets\assets\code\PlayerController.cs" />

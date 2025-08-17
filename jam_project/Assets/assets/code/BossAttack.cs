@@ -2,81 +2,125 @@ using UnityEngine;
 
 public class BossAttack : MonoBehaviour
 {
-    public Transform player; // Referencia al jugador
-    public BossHealth bossHealth; // Referencia al script de vida del jefe
-    public float attackRange = 2f; // Distancia para ataque cuerpo a cuerpo
-    public float projectileRange = 8f; // Distancia para ataque a distancia
-    public int meleeDamage = 10; // Daño del ataque cuerpo a cuerpo
-    public int rangedDamage = 20; // Daño del ataque a distancia
-    public GameObject projectilePrefab; // Prefab del proyectil
-    public Transform shootPoint; // Punto desde donde se lanza el proyectil
+    [Header("Referencias")]
+    public Transform player;
+    public BossHealth bossHealth;
+    public GameObject projectilePrefab;
+    public Transform shootPoint;
+    public GameObject scytheHitbox;
+    public Transform spawnPoint;
 
+    [Header("Ataques")]
+    public float attackRange = 2f;       // Distancia melee
+    public float projectileRange = 8f;   // Distancia ranged
+    public int meleeDamage = 10;
+    public int rangedDamage = 20;
     public float attackCooldown = 2f;
-    private float attackTimer;
-    public bool canAttack = false; // Controla si el jefe puede atacar
 
-    void Update()
+    [Header("Movimiento")]
+    public float moveSpeed = 0.8f;
+    public float stopDistance = 2f;      // Detención frente al jugador
+    public float maxMoveDistance = 10f;  // Distancia máxima desde spawn
+
+    [Header("Estado")]
+    public bool canAttack = false;
+    private float attackTimer = 0f;
+
+    private Animator animator;
+    private Rigidbody2D rb;
+
+    void Start()
     {
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
 
+        if (scytheHitbox != null)
+            scytheHitbox.SetActive(false);
+
+        if (spawnPoint == null)
+            spawnPoint = transform; // Si no asignaste spawnPoint, usa la posición inicial
+    }
+
+    void FixedUpdate()
+    {
         if (!canAttack || bossHealth == null || player == null)
             return;
-        attackTimer -= Time.deltaTime;
-    
+
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float distanceFromSpawn = Vector2.Distance(transform.position, spawnPoint.position);
+        float distancePlayerFromSpawn = Vector2.Distance(player.position, spawnPoint.position);
+
+        Vector2 direction = Vector2.zero;
+
+        // 🔹 Movimiento hacia el jugador si está dentro de zona de acción y fuera del stopDistance
+        if (distancePlayerFromSpawn <= maxMoveDistance && distanceToPlayer > stopDistance)
+        {
+            direction = (player.position - transform.position).normalized;
+        }
+        // 🔹 Retroceso al spawn si se pasó de la zona
+        else if (distanceFromSpawn > 0.1f)
+        {
+            direction = (spawnPoint.position - transform.position).normalized;
+        }
+        // 🔹 Si está cerca del spawn y jugador dentro de stopDistance → no moverse
+        else
+        {
+            direction = Vector2.zero;
+        }
+
+        // 🔹 Aplicar movimiento
+        if (direction != Vector2.zero)
+            rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
+
+        // 🔹 Ataques con cooldown
         if (attackTimer <= 0f)
         {
             int currentHealth = bossHealth.GetCurrentHealth();
 
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
-            if (currentHealth > 50)
+            // Ataque cuerpo a cuerpo si vida alta y jugador en rango
+            if (currentHealth > 50 && distanceToPlayer <= attackRange)
             {
-                if (distanceToPlayer <= attackRange) // Si la vida es alta, ataca cuerpo a cuerpo
-                {
-                    MeleeAttack();
-                    attackTimer = attackCooldown;
-                }
+                animator.SetTrigger("AttackMelee");
+                attackTimer = attackCooldown;
             }
+            // Ataque a distancia si vida baja y jugador en rango
             else if (currentHealth <= 50 && distanceToPlayer <= projectileRange)
             {
-                RangedAttack(); // Si la vida es baja, ataca a distancia
+                animator.SetTrigger("AttackRanged");
+                RangedAttack();
                 attackTimer = attackCooldown;
-            }    
-
-                
-        }
-    }
-
-    void MeleeAttack()
-    {
-        Debug.Log("La Muerte hace ataque cuerpo a cuerpo.");
-        // Aquí podés poner la lógica para hacer daño si el jugador está en rango,
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        if (distanceToPlayer <= attackRange)
-        {
-            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-            {
-                playerHealth.TakeDamage(meleeDamage); // Ajusta el daño según sea necesario
             }
-        // animaciones, efectos, etc.
+        }
+        else
+        {
+            attackTimer -= Time.fixedDeltaTime;
         }
     }
+
+    // 🔹 Animation Events
+    public void EnableHitbox()
+    {
+        if (scytheHitbox != null)
+            scytheHitbox.SetActive(true);
+    }
+
+    public void DisableHitbox()
+    {
+        if (scytheHitbox != null)
+            scytheHitbox.SetActive(false);
+    }
+
+    // 🔹 Ataque a distancia
     void RangedAttack()
     {
-   // Instancia el proyectil en el punto de disparo
-    GameObject projectile = Instantiate(projectilePrefab, shootPoint.position, Quaternion.identity);
+        if (projectilePrefab == null || shootPoint == null) return;
 
-    // Obtiene el script del proyectil para setear la dirección
-    DeathProjectile dp = projectile.GetComponent<DeathProjectile>();
-
-    if (dp != null)
-    {
-        // Calcula la dirección hacia el jugador en el momento del disparo
-        Vector2 dir = (player.position - shootPoint.position).normalized;
-
-        // Le indica al proyectil la dirección en la que debe moverse
-        dp.SetDirection(dir);
-    }
+        GameObject projectile = Instantiate(projectilePrefab, shootPoint.position, Quaternion.identity);
+        DeathProjectile dp = projectile.GetComponent<DeathProjectile>();
+        if (dp != null)
+        {
+            Vector2 dir = (player.position - shootPoint.position).normalized;
+            dp.SetDirection(dir);
+        }
     }
 }
-
